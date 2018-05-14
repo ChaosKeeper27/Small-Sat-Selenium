@@ -34,7 +34,7 @@ def main():
     # book.save("Sample.xls")
 
     # driver = webdriver.Chrome("C:\\Users\\Casey\\Downloads\\chromedriver_win32\\chromedriver.exe") # works on Casey's Laptop (0riginal)
-    driver = webdriver.Chrome("C:\\Users\\Casey\\PycharmProjects\\SmallSat2018\\drivers\\chromedriver.exe") # File path for Casey
+    driver = webdriver.Chrome("chromedriver.exe") # File path for Casey
     # driver = webdriver.Chrome() # File path for Jesse
 
     driver.get("https://smallsat.org")
