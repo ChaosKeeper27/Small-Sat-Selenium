@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from selenium import webdriver
 import time
 from selenium.webdriver.common.keys import Keys
@@ -79,9 +81,13 @@ def main():
                 for k in xrange(len(authorsAff)): # cycle through each affiliated group
                     print "# of Aff: " + str(len(authorsAff))
                     print authorsAff[k]
-                    # authorGroup = authorsAff[k].split("- ") # puts authors by themselves
-                    uniConvert = u''.join(authorsAff[k]).encode('utf-8')
-                    authorGroup = re.split('- |,– |', authorsAff[k])
+                    # authorTest = authorsAff[k].encode('ascii', 'replace').replace(u'\ufffd', '-')
+                    # authorTest = authorsAff[k].replace(u'\ufffd', "-", 1)
+                    # print "Ascii test: " + authorTest
+                    # authorTest = authorsAff[k].decode('ascii', 'replace').replace(u'\ufffd', '-')
+                    # authorGroup = authorTest.split("- ") # puts authors by themselves
+                    # authorGroup = authorsAff[k].split("- ")  # puts authors by themselves
+                    authorGroup = re.split('-|,-|', authorsAff[k])
 
                     print authorGroup[0]
                     print authorGroup[1]
