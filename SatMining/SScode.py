@@ -11,6 +11,7 @@ import xlwt # write
 import string
 import re
 
+# test
 # dayCounter = 0
 
 class AuthorStruct():
