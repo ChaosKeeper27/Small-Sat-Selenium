@@ -61,7 +61,7 @@ def CreateDate(rawTime, day_num):
     if AMPM == "PM":
         hour = str(int(timeBreakdown[0]) + 12) # convert to military time
     else: # AM time
-        if len(timeBreakdown[0] == 1):
+        if len(timeBreakdown[0]) == 1:
             hour = "0" + timeBreakdown[0] # add 0 infront of single digits
         else:
             hour = timeBreakdown[0]
@@ -171,7 +171,7 @@ def splitAuthorName (authorSingle, authorGroup, Entry_Data): # splits author's n
         else:  # len(splitName) == 4:
             authorMeta.fname = splitName[0]
             authorMeta.mname = splitName[1]
-            authorMeta.lname = splitName[2] + splitName[3]
+            authorMeta.lname = splitName[2] + " " + splitName[3]
         eachAuthorData.append(authorMeta) # logs author objects for processing
     addToTotalAuthorMeta(eachAuthorData, Entry_Data)
 
@@ -288,7 +288,7 @@ def getDayNum(day):
 
 def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
     i = 0
-    while i < 2:          # single test. Will be replace with for i in xrange(sessionsList):
+    while i < 12:          # single test. Will be replace with for i in xrange(sessionsList):
         alternateKey = 0                                        # reset each session
         sessionTitleText = sessionsList[i].text
         sessionData = sessionTitleText.split()                  # break up session title
