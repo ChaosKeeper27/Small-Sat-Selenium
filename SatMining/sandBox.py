@@ -84,10 +84,10 @@ for i in xrange(len(element2)):
 
 for i in xrange(len(element2)):
     splitter = element2[i].text.split()
-    if splitter[0] == "Session" or splitter[0] == "Poster" or splitter[0] == "Swifty" or splitter[0] == "Posters":
-        print splitter[0]
-    else:
-        correctElements.append(element2[i])
+   # if splitter[0] == "Session" or splitter[0] == "Poster" or splitter[0] == "Swifty" or splitter[0] == "Posters":
+    #    print splitter[0]
+    #else:
+    correctElements.append(element2[i])
 print len(correctElements)
 print correctElements[0].text
 print correctElements[1].text

@@ -30,10 +30,10 @@ class ExcelEntry():
         self.session = "" # can be copied from title split
         self.startDate = "" # needs to be in a very specific format, if python can't date-format it OpenRefine will
 
-def CreateDate(rawTime):
+def CreateDate(rawTime, day_num):
     year = "2018"
     month = "08"
-    day = "01" # going to need some logic to determine the day here
+    day = day_num # going to need some logic to determine the day here
     hour = ""
     minutes = ""
     seconds = "00"
@@ -49,7 +49,7 @@ def CreateDate(rawTime):
         else:
             hour = timeBreakdown[0]
     correctFormat = year + "-" + month + "-" + day + "T" + hour + ":" + minutes + ":" + seconds + "Z"
-    print correctFormat
+    #print correctFormat
     return correctFormat
 
 
@@ -80,22 +80,22 @@ def splitAuthorName (authorSingle, authorGroup):              # splits author's 
         elif len(splitName) == 2:
             authorMeta.fname = splitName[0]
             authorMeta.lname = splitName[1]
-            print splitName[0]
-            print splitName[1]
+            #print splitName[0]
+            #print splitName[1]
         elif len(splitName) == 3:
             authorMeta.fname = splitName[0]
             authorMeta.mname = splitName[1]
             authorMeta.lname = splitName[2]
-            print splitName[0]
-            print splitName[1]
-            print splitName[2]
+            #print splitName[0]
+            #print splitName[1]
+            #print splitName[2]
         else:  # len(splitName) == 4:
             authorMeta.fname = splitName[0]
             authorMeta.mname = splitName[1]
             authorMeta.lname = splitName[2] + splitName[3]
-            print splitName[0]
-            print splitName[1]
-            print splitName[2]
+            #print splitName[0]
+            #print splitName[1]
+            #print splitName[2]
     return
 
 def separateAuthors (authorsAff):                               #separates authors from affiliations and divides into
@@ -114,6 +114,114 @@ def separateAuthors (authorsAff):                               #separates autho
         splitAuthorName(authorSingle, authorGroup)
     return
 
+def splitDays(element, day_dictionary):
+    count = 0;
+    for i in xrange(len(element)):
+        splitter = element[i].text.split()
+        if splitter[0] == u'Tuesday,':
+            for x in range(0,i):
+                day_dictionary[element[x].text] = "monday"
+            count = i
+        elif splitter[0] == u'Wednesday,':
+            for x in range(count, i):
+                day_dictionary[element[x].text] = "tuesday"
+            count = i
+        elif splitter[0] == u'Thursday,':
+            for x in range(count, i):
+                day_dictionary[element[x].text] = "wednesday"
+            count = i
+        elif splitter[0] == u'Posters':
+            for x in range(count, i):
+                day_dictionary[element[x].text] = "thursday"
+            count = i
+        elif splitter[0] == u'Swifty' and splitter[1] == u'Sessions':
+            for x in range(count, i):
+                day_dictionary[element[x].text] = "posters"
+            count = i
+
+            for x in range(count, len(element)):
+                day_dictionary[element[x].text] = "swifty"
+    return
+
+def getDayNum(day):
+    day_num = "00"
+    if day == "monday":
+        day_num = "06"
+    elif day == "tuesday":
+        day_num = "07"
+    elif day == "wednesday":
+        day_num = "08"
+    elif day == "thursday":
+        day_num = "09"
+    elif day == "posters":
+        day_num = "06"
+    elif day == "swifty":
+        day_num = "06"
+    return day_num
+
+def pullInfo(sessionsList, Entry_Data, day_dictionary):
+    i = 1
+    while i < 2:          # single test. Will be replace with for i in xrange(sessionsList):
+        alternateKey = 0                                        # reset each session
+        sessionTitleText = sessionsList[i].text
+        sessionData = sessionTitleText.split()                  # break up session title
+
+        dict_keys = day_dictionary.keys()
+        day = day_dictionary[sessionTitleText]
+
+        day_num = getDayNum(day)
+
+        convertToRomanNum(sessionData, Entry_Data, sessionTitleText)
+        #print Entry_Data.session
+        sessionsList[i].click()                                 # opens drop down list per session
+
+        time.sleep(5)
+
+        eventsList = sessionsList[i].find_elements_by_css_selector("p")
+
+
+        #print "# of Events: " + str(eventsList.__len__())
+
+        j = 2                                                   # ignore first two elements, should be 2
+        while j in xrange(len(eventsList) - 1):                 # cycle through events
+
+            eventData = eventsList[j].text                      # data on separate lines
+            splitData = eventData.splitlines()                  # lines divided into list elements
+
+            if splitData[0] == "Alternates:":
+                alternateKey = 1
+
+            if alternateKey == 0:                                # not an alternate/has time stamp
+                #print splitData[0]                              # Time
+                # TODO--- Time needs to be formatted properly!!! ---
+                formattedDate = CreateDate(splitData[0], day_num)
+                Entry_Data.startDate = formattedDate
+                #print splitData[1]                              # Event Title
+                Entry_Data.title = splitData[1]
+
+                authorsAff = splitData[2].split("; ")            # puts authors with their affiliation
+                separateAuthors(authorsAff)
+
+                        # TODO---- Entry should be written out to spreadsheet --- #
+
+            else: # alternateKey = 1
+                # i must be referenced as i + 1, "Alternates:" is considered an element and should not be processed
+                if splitData[0] == "Alternates:":
+                    print "---Alternates Here---"
+                else: # do the stuff
+                    #print splitData[0]                          # Event Title
+                    Entry_Data.title = splitData[0]
+                    #print splitData[1]                          # Authors/Presenters
+
+                    authorsAff = splitData[1].split("; ")       # puts authors with their affiliation
+
+                    separateAuthors(authorsAff)
+                    # TODO---- Entry should be written out to spreadsheet --- #
+
+            j += 1
+        i += 1
+        alternateKey = 0
+
 def main():
     # book = xlwt.Workbook()
     # sheet = book.add_sheet('Sheet 1')
@@ -125,66 +233,22 @@ def main():
     driver.get("https://smallsat.org")
     linksArray = ["https://www.smallsat.org/technical-program/tech-sessions", "https://www.smallsat.org/technical-program/workshop", "https://www.smallsat.org/technical-program/keynote"]
     driver.get(linksArray[0]) # Got to Technical Sessions (After one link works this will need to loop for the others)
-    sessionsList = driver.find_elements_by_css_selector("div[class^='demo']")
-    print "# of Sessions: " + str(sessionsList.__len__())
+    allSessions = driver.find_elements_by_css_selector("div[class^='demo']")
 
-    i = 0
+    element = driver.find_elements_by_css_selector("#main-info h2")
+
+    day_dictionary = {}
+
+    splitDays(element, day_dictionary)
+
+    pullInfo(allSessions, Entry_Data, day_dictionary)
+
+    #print "# of Sessions: " + str(sessionsList.__len__())
+
+
 
     # while i < len(sessionsList): # cycle through sessions
-    while i < 1:          # single test
-        alternateKey = 0                                        # reset each session
-        sessionTitleText = sessionsList[i].text
-        sessionData = sessionTitleText.split()                  # break up session title
-        # TODO---- Logic of determining "day" here *I'm working on it
 
-        convertToRomanNum(sessionData, Entry_Data, sessionTitleText)
-        print Entry_Data.session
-        sessionsList[i].click()                                 # opens drop down list per session
-
-        time.sleep(5)
-
-        eventsList = sessionsList[i].find_elements_by_css_selector("p")
-        print "# of Events: " + str(eventsList.__len__())
-
-        j = 2                                                   # ignore first two elements, should be 2
-        while j in xrange(len(eventsList) - 1):                 # cycle through events
-
-            eventData = eventsList[j].text                      # data on separate lines
-            splitData = eventData.splitlines()                  # lines divided into list elements
-
-            if splitData[0] == "Alternates:":
-                alternateKey = 1
-
-            if alternateKey == 0:                               # not an alternate/has time stamp
-                print splitData[0]                              # Time
-                # TODO--- Time needs to be formatted properly!!! ---
-                formattedDate = CreateDate(splitData[0])
-                Entry_Data.startDate = formattedDate
-                print splitData[1]                              # Event Title
-                Entry_Data.title = splitData[1]
-
-                authorsAff = splitData[2].split("; ")           # puts authors with their affiliation
-                separateAuthors(authorsAff)
-
-                        # TODO---- Entry should be written out to spreadsheet --- #
-
-            else: # alternateKey = 1
-                # i must be referenced as i + 1, "Alternates:" is considered an element and should not be processed
-                if splitData[0] == "Alternates:":
-                    print "---Alternates Here---"
-                else: # do the stuff
-                    print splitData[0]                          # Event Title
-                    Entry_Data.title = splitData[0]
-                    print splitData[1]                          # Authors/Presenters
-
-                    authorsAff = splitData[1].split("; ")       # puts authors with their affiliation
-
-                    separateAuthors(authorsAff)
-                    # TODO---- Entry should be written out to spreadsheet --- #
-
-            j += 1
-        i += 1
-        alternateKey = 0
 
 
     time.sleep(5)
