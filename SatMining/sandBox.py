@@ -75,6 +75,7 @@ print test
 # print testArray
 # print evensList
 
+
 # class AuthorStruct(object):
 #     fname = "NULL"
 #     mname = "NULL"
@@ -93,6 +94,46 @@ print test
 # row = sheet.row(0)
 # row.write(0, tuple["a", "b"])
 # book.save("Sample.xls")
+
+driver = webdriver.Chrome("chromedriver.exe")
+# # #driver = webdriver.Firefox("")
+# # #driver = webdriver.Opera("")
+# #
+driver.get("http://smallsat.org/")
+linksArray = ["https://www.smallsat.org/technical-program/tech-sessions",
+              "https://www.smallsat.org/technical-program/workshop",
+              "https://www.smallsat.org/technical-program/keynote"]
+driver.get(linksArray[0])  # Got to Technical Sessions (After one link works this will need to loop for the others)
+time.sleep(5)
+sessionsList = driver.find_elements_by_css_selector("div[class^='demo']")
+sessionsList[0].click()  # opens drop down list per session
+time.sleep(5)
+# css = By.CSS_SELECTOR("#main-info div.main-info>h1")
+# element = driver.find_element(By.CSS_SELECTOR, "#main-info")
+# element2 = element.find_element(By.PARTIAL_LINK_TEXT, "August")
+# element2 = element.find_element_by_partial_link_text("h2['Monday']")
+element2 = driver.find_elements_by_css_selector("#main-info h2")
+print len(element2)
+correctElements = []
+for i in xrange(len(element2)):
+    print element2[i].text
+
+for i in xrange(len(element2)):
+    splitter = element2[i].text.split()
+   # if splitter[0] == "Session" or splitter[0] == "Poster" or splitter[0] == "Swifty" or splitter[0] == "Posters":
+    #    print splitter[0]
+    #else:
+    correctElements.append(element2[i])
+print len(correctElements)
+print correctElements[0].text
+print correctElements[1].text
+# if driver.find_elements_by_name("btnk").__len__() != 0: # .isEmpty() or .size() != 0
+#     print "Element found!"
+# else:
+#     print "Element does not exist!"
+# testing = "Hi! Hello it worked! "
+# testing = testing[:-4]
+
 #
 #
 # driver = webdriver.Chrome("chromedriver.exe")
