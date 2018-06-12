@@ -47,7 +47,7 @@ class ExcelEntry(object):
     updateReason = "NULL"
     url = "NULL"
 
-def CreateDate(rawTime, day_num):
+def CreateDate(rawTime, day_num, swifty_or_posters):
     year = "2018"
     month = "08"
     day = day_num # going to need some logic to determine the day here
@@ -55,16 +55,22 @@ def CreateDate(rawTime, day_num):
     minutes = ""
     seconds = "00"
     timeData = rawTime.split()
-    AMPM = timeData[1]
-    timeBreakdown = timeData[0].split(":")
-    minutes = timeBreakdown[1]
-    if AMPM == "PM":
-        hour = str(int(timeBreakdown[0]) + 12) # convert to military time
-    else: # AM time
-        if len(timeBreakdown[0]) == 1:
-            hour = "0" + timeBreakdown[0] # add 0 infront of single digits
-        else:
-            hour = timeBreakdown[0]
+    if swifty_or_posters:
+        AMPM = "AM"
+        hour = "9"
+        minutes = "45"
+    else:
+        AMPM = timeData[1]
+        timeBreakdown = timeData[0].split(":")
+        minutes = timeBreakdown[1]
+        if AMPM == "PM":
+            hour = str(int(timeBreakdown[0]) + 12) # convert to military time
+        else: # AM time
+            if len(timeBreakdown[0]) == 1:
+                hour = "0" + timeBreakdown[0] # add 0 in front of single digits
+            else:
+                hour = timeBreakdown[0]
+
     correctFormat = year + "-" + month + "-" + day + "T" + hour + ":" + minutes + ":" + seconds + "Z"
     #print correctFormat
     return correctFormat
@@ -193,7 +199,16 @@ def separateAuthors (authorsAff, Entry_Data):                               # se
         print "# of Aff: " + str(len(authorsAff))
         print authorsAff[k]
 
-        authorGroup = re.split(u'- |- |– ', authorsAff[k])
+        if authorsAff[k].find("Leitner") == -1:
+            authorGroup = re.split(u'- |- |– ', authorsAff[k])
+            print 'blah'
+        else:
+            #author_splitter = authorsAff[k].text.split
+            #split_at = author_splitter.index('Leitner')
+            authorGroup[0] = authorsAff[k][:13]
+            authorGroup[1] = authorsAff[k][13:]
+            #authorGroup = authorsAff[k][split_at:]
+            print authorGroup[0]
         print authorGroup[0]
         print authorGroup[1]
 
@@ -288,7 +303,7 @@ def getDayNum(day):
 
 def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
     i = 0
-    while i < 12:          # single test. Will be replace with for i in xrange(sessionsList):
+    while i < 16:          # single test. Will be replace with for i in xrange(sessionsList):
         alternateKey = 0                                        # reset each session
         sessionTitleText = sessionsList[i].text
         sessionData = sessionTitleText.split()                  # break up session title
@@ -317,25 +332,37 @@ def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
             eventData = eventsList[j].text                      # data on separate lines
             splitData = eventData.splitlines()                  # lines divided into list elements
 
+            if len(splitData) == 0:
+                break
+
             if splitData[0] == "Alternates:":
                 alternateKey = 1
 
             if alternateKey == 0:                                # not an alternate/has time stamp
                 #print splitData[0]                              # Time
                 # TODO--- Time needs to be formatted properly!!! ---
-                formattedDate = CreateDate(splitData[0], day_num)
-                Entry_Data.startDate = formattedDate
-                #print splitData[1]                              # Event Title
-                Entry_Data.title = splitData[1]
+                if day == 'posters' or day == 'swifty':
+                    swifty_or_poster = 1
+                    formattedDate = CreateDate(splitData[0], day_num, swifty_or_poster)
+                    Entry_Data.startDate = formattedDate
+                    # print splitData[1]                              # Event Title
+                    Entry_Data.title = splitData[0]
 
+                    authorsAff = splitData[1].split("; ")
 
-                authorsAff = splitData[2].split("; ")           # puts authors with their affiliation
+                else:
+                    swifty_or_poster = 0
+                    formattedDate = CreateDate(splitData[0], day_num, swifty_or_poster)
+                    Entry_Data.startDate = formattedDate
+                    # print splitData[1]                              # Event Title
+                    Entry_Data.title = splitData[1]
+
+                    authorsAff = splitData[2].split("; ")
+                           # puts authors with their affiliation
                 separateAuthors(authorsAff, Entry_Data)
-                print "Execl entry: " + str(Entry_Data.excelRowCount)
+                print "Excel entry: " + str(Entry_Data.excelRowCount)
                 generateRowEntry(Entry_Data)
                 write_to_File(sheet, Entry_Data)
-
-                        # TODO---- Entry should be written out to spreadsheet --- #
 
             else: # alternateKey = 1
                 # i must be referenced as i + 1, "Alternates:" is considered an element and should not be processed
@@ -350,7 +377,7 @@ def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
                     authorsAff = splitData[1].split("; ")       # puts authors with their affiliation
 
                     separateAuthors(authorsAff, Entry_Data)
-                    print "Execl entry: " + str(Entry_Data.excelRowCount)
+                    print "Excel entry: " + str(Entry_Data.excelRowCount)
                     generateRowEntry(Entry_Data)
                     write_to_File(sheet, Entry_Data)
                     # TODO---- Entry should be written out to spreadsheet --- #
