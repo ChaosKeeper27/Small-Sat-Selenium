@@ -194,23 +194,30 @@ def write_to_File(sheet, Entry_Data):
     return
 
 def separateAuthors (authorsAff, Entry_Data):                               # separates authors from affiliations and divides into
+    authorGroup = []
                                                                 # individual authors
     for k in xrange(len(authorsAff)):                           # cycle through each affiliated group
         print "# of Aff: " + str(len(authorsAff))
         print authorsAff[k]
 
-        if authorsAff[k].find("Leitner") == -1:
-            authorGroup = re.split(u'- |- |– ', authorsAff[k])
-            print 'blah'
-        else:
-            #author_splitter = authorsAff[k].text.split
-            #split_at = author_splitter.index('Leitner')
+        if authorsAff[k].find("Leitner") != -1:
+            # author_splitter = authorsAff[k].text.split
+            # split_at = author_splitter.index('Leitner')
             authorGroup[0] = authorsAff[k][:13]
-            authorGroup[1] = authorsAff[k][13:]
-            #authorGroup = authorsAff[k][split_at:]
+            authorGroup[1] = authorsAff[k][14:]
+            # authorGroup = authorsAff[k][split_at:]
             print authorGroup[0]
-        print authorGroup[0]
-        print authorGroup[1]
+        elif authorsAff[k].find("Angela") != -1:
+            authorGroup.append(authorsAff[k][:12])
+            authorGroup.append(authorsAff[k][13:])
+        elif authorsAff[k].find("Williams") != -1:
+            authorGroup[0] = authorsAff[k][:13]
+            authorGroup[1] = authorsAff[k][14:]
+        #elif authorsAff[k].find("Leitner") == -1 and authorsAff[k].find("Angela") != -1:
+        #    authorGroup[0] = authorsAff[k][:]
+        #    authorGroup[1] = authorsAff[k][7:]
+        else:
+            authorGroup = re.split(u'- |- |– ', authorsAff[k])
 
         authorSingle = authorGroup[0].split(", ")               # divides authors up
 
