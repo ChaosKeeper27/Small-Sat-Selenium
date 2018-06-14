@@ -393,8 +393,7 @@ def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
         i += 1
         alternateKey = 0
 
-    createAuthorHeaders(sheet, Entry_Data.authorCounter)
-    book.save("SS2018-Metadata.xls")
+
     # testbook = xlrd.open_workbook("SS2018-Metadata.xls")
     # testsheet = testbook.sheet_by_index(0)
     # print testsheet.cell(0, 20).value
@@ -411,18 +410,22 @@ def main():
     Entry_Data = ExcelEntry()
 
     driver.get("https://smallsat.org")
-    linksArray = ["https://www.smallsat.org/technical-program/tech-sessions", "https://www.smallsat.org/technical-program/workshop", "https://www.smallsat.org/technical-program/keynote"]
-    driver.get(linksArray[0]) # Got to Technical Sessions (After one link works this will need to loop for the others)
-    allSessions = driver.find_elements_by_css_selector("div[class^='demo']")
+    linksArray = ["https://www.smallsat.org/technical-program/tech-sessions", "https://www.smallsat.org/technical-program/workshop"]
+    for k in xrange(len(linksArray)):
 
-    element = driver.find_elements_by_css_selector("#main-info h2")
+        driver.get(linksArray[k]) # Got to Technical Sessions (After one link works this will need to loop for the others)
+        allSessions = driver.find_elements_by_css_selector("div[class^='demo']")
 
-    day_dictionary = {}
+        element = driver.find_elements_by_css_selector("#main-info h2")
 
-    splitDays(element, day_dictionary)
+        day_dictionary = {}
 
-    pullInfo(allSessions, Entry_Data, day_dictionary, book, sheet, driver)
+        splitDays(element, day_dictionary)
 
+        pullInfo(allSessions, Entry_Data, day_dictionary, book, sheet, driver)
+
+    createAuthorHeaders(sheet, Entry_Data.authorCounter)
+    book.save("SS2018-Metadata.xls")
     #print "# of Sessions: " + str(sessionsList.__len__())
 
     # while i < len(sessionsList): # cycle through sessions
