@@ -213,6 +213,15 @@ def separateAuthors (authorsAff, Entry_Data):                               # se
         elif authorsAff[k].find("Williams") != -1:
             authorGroup[0] = authorsAff[k][:13]
             authorGroup[1] = authorsAff[k][14:]
+        elif authorsAff[k].find("Samson") != -1:
+            authorGroup.append(authorsAff[k][:(authorsAff[k].find("Samson")+6)])
+            authorGroup.append(authorsAff[k][(authorsAff[k].find("Samson")+7):])
+        elif authorsAff[k].find("Wessels") != -1:
+            authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Wessels")+7)]
+            authorGroup[1] = authorsAff[k][(authorsAff[k].find("Wessels")+8):]
+        elif authorsAff[k].find("Mengu Cho") != -1:
+            authorGroup.append(authorsAff[k][:(authorsAff[k].find("Mengu Cho") + 9)])
+            authorGroup.append(authorsAff[k][(authorsAff[k].find("Mengu Cho") + 11):])
         #elif authorsAff[k].find("Leitner") == -1 and authorsAff[k].find("Angela") != -1:
         #    authorGroup[0] = authorsAff[k][:]
         #    authorGroup[1] = authorsAff[k][7:]
@@ -290,11 +299,23 @@ def splitDays(element, day_dictionary):
 
             for x in range(count, len(element)):
                 day_dictionary[element[x].text] = "swifty"
+
+        elif splitter[0] == u'Sunday,':
+            for x in range(count, i):
+                day_dictionary[element[x].text] = "saturday"
+            count = i
+
+            for x in range(count, len(element)):
+                day_dictionary[element[x].text] = "sunday"
     return
 
 def getDayNum(day):
     day_num = "00"
-    if day == "monday":
+    if day == "saturday":
+        day_num == "04"
+    elif day == "sunday":
+        day_num == "05"
+    elif day == "monday":
         day_num = "06"
     elif day == "tuesday":
         day_num = "07"
@@ -309,8 +330,7 @@ def getDayNum(day):
     return day_num
 
 def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
-    i = 0
-    while i < 16:          # single test. Will be replace with for i in xrange(sessionsList):
+    for i in xrange(len(sessionsList)):          # single test. Will be replace with for i in xrange(sessionsList):
         alternateKey = 0                                        # reset each session
         sessionTitleText = sessionsList[i].text
         sessionData = sessionTitleText.split()                  # break up session title
@@ -342,7 +362,7 @@ def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
             if len(splitData) == 0:
                 break
 
-            if splitData[0] == "Alternates:":
+            if splitData[0] == "Alternates:" or splitData[0] == "Alternates":
                 alternateKey = 1
 
             if alternateKey == 0:                                # not an alternate/has time stamp
@@ -373,7 +393,7 @@ def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
 
             else: # alternateKey = 1
                 # i must be referenced as i + 1, "Alternates:" is considered an element and should not be processed
-                if splitData[0] == "Alternates:":
+                if splitData[0] == "Alternates:" or splitData[0] == "Alternates":
                     print "---Alternates Here---"
                 else: # do the stuff
                     #print splitData[0]                          # Event Title
