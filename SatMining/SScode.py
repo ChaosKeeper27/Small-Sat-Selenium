@@ -162,6 +162,12 @@ def splitAuthorName (authorSingle, authorGroup, Entry_Data): # splits author's n
         authorMeta.aff = authorGroup[1]                       # grab affiliation
         if len(splitName) == 0:
             print "ERROR - No ENTRY"
+        elif splitName[0] == "Black":
+            authorMeta.fname = "Ou"
+            authorMeta.mname = "Ma"
+            authorMeta.lname = "Black"
+        elif splitName[0] == "Harrison":
+            authorMeta.lname = splitName[0]
         elif len(splitName) == 2:
             authorMeta.fname = splitName[0]
             authorMeta.lname = splitName[1]
@@ -222,6 +228,18 @@ def separateAuthors (authorsAff, Entry_Data):                               # se
         elif authorsAff[k].find("Mengu Cho") != -1:
             authorGroup.append(authorsAff[k][:(authorsAff[k].find("Mengu Cho") + 9)])
             authorGroup.append(authorsAff[k][(authorsAff[k].find("Mengu Cho") + 11):])
+        elif authorsAff[k].find("Alan George") != -1:
+            authorGroup.append(authorsAff[k][:(authorsAff[k].find("Alan George") + 11)])
+            authorGroup.append(authorsAff[k][(authorsAff[k].find("Alan George") + 12):])
+        elif authorsAff[k].find("Gary Crum") != -1:
+            authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Gary Crum") + 9)]
+            authorGroup[1] = authorsAff[k][(authorsAff[k].find("Gary Crum") + 10):]
+        elif authorsAff[k].find("Brenda Dingwall") != -1:
+            authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Brenda Dingwall")+15)]
+            authorGroup[1] = authorsAff[k][(authorsAff[k].find("Brenda Dingwall")+16):]
+        #elif authorsAff[k].find("Black") != -1:
+         #   authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Black"))]
+          #  authorGroup[1] = authorsAff[k][(authorsAff[k].find("Black")):]
         #elif authorsAff[k].find("Leitner") == -1 and authorsAff[k].find("Angela") != -1:
         #    authorGroup[0] = authorsAff[k][:]
         #    authorGroup[1] = authorsAff[k][7:]
