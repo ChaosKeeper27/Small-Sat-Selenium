@@ -57,13 +57,13 @@ def CreateDate(rawTime, day_num, swifty_or_posters):
     timeData = rawTime.split()
     if swifty_or_posters:
         AMPM = "AM"
-        hour = "9"
+        hour = "09"
         minutes = "45"
     else:
         AMPM = timeData[1]
         timeBreakdown = timeData[0].split(":")
         minutes = timeBreakdown[1]
-        if AMPM == "PM":
+        if AMPM == "PM" and int(timeBreakdown[0]) != 12:
             hour = str(int(timeBreakdown[0]) + 12) # convert to military time
         else: # AM time
             if len(timeBreakdown[0]) == 1:
@@ -237,6 +237,9 @@ def separateAuthors (authorsAff, Entry_Data):                               # se
         elif authorsAff[k].find("Brenda Dingwall") != -1:
             authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Brenda Dingwall")+15)]
             authorGroup[1] = authorsAff[k][(authorsAff[k].find("Brenda Dingwall")+16):]
+        elif authorsAff[k].find("Shih-Chi Chiu") != -1:
+            authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Shih-Chi Chiu") + 13)]
+            authorGroup[1] = authorsAff[k][(authorsAff[k].find("BShih-Chi Chiu") + 14):]
         #elif authorsAff[k].find("Black") != -1:
          #   authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Black"))]
           #  authorGroup[1] = authorsAff[k][(authorsAff[k].find("Black")):]
@@ -347,6 +350,15 @@ def getDayNum(day):
         day_num = "06"
     return day_num
 
+def notWantedElements(eventsList, removeMe):
+    counter = 0
+    while len(removeMe) > 0:
+
+        if eventsList[counter] == removeMe[counter]:
+            eventsList.pop(counter)
+            removeMe.pop(counter)
+    return eventsList
+
 def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
     for i in xrange(len(sessionsList)):          # single test. Will be replace with for i in xrange(sessionsList):
         alternateKey = 0                                        # reset each session
@@ -366,12 +378,20 @@ def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
         time.sleep(5)
 
         eventsList = sessionsList[i].find_elements_by_css_selector("p")
+        descClass = sessionsList[i].find_element_by_css_selector("div[class^='desc']")
+        removeChecklist = descClass.find_elements_by_css_selector("p")
 
-
+        eventsList = notWantedElements(eventsList, removeChecklist)
         #print "# of Events: " + str(eventsList.__len__())
 
-        j = 2                                                   # ignore first two elements, should be 2
-        while j in xrange(len(eventsList) - 1):                 # cycle through events
+        j = 0
+        while j in xrange(len(eventsList)):                 # cycle through events
+            if eventsList[j].text == "Top of page":
+                break
+            if eventsList[j].text == "":
+                j += 1
+                if j >= len(eventsList):
+                    break
             del Entry_Data.complete_Entry[:]
             del Entry_Data.totalAuthorMeta[:]
             eventData = eventsList[j].text                      # data on separate lines
@@ -382,6 +402,8 @@ def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
 
             if splitData[0] == "Alternates:" or splitData[0] == "Alternates":
                 alternateKey = 1
+                if len(splitData) > 1:
+                    splitData.pop(0)
 
             if alternateKey == 0:                                # not an alternate/has time stamp
                 #print splitData[0]                              # Time
@@ -417,7 +439,7 @@ def pullInfo(sessionsList, Entry_Data, day_dictionary, book, sheet, driver):
                     #print splitData[0]                          # Event Title
                     Entry_Data.title = splitData[0]
                     print splitData[1]           # Authors/Presenters
-                    Entry_Data.startDate = "2018-08-00T12:00:00Z"
+                    Entry_Data.startDate = "2018-08-00T24:00:00Z"
 
                     authorsAff = splitData[1].split("; ")       # puts authors with their affiliation
 
