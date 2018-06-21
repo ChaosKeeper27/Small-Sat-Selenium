@@ -206,25 +206,25 @@ def separateAuthors (authorsAff, Entry_Data):                               # se
         print "# of Aff: " + str(len(authorsAff))
         print authorsAff[k]
 
-        if authorsAff[k].find("Leitner") != -1:
+        if authorsAff[k].find("Jesse Leitner") != -1:
             # author_splitter = authorsAff[k].text.split
             # split_at = author_splitter.index('Leitner')
             authorGroup[0] = authorsAff[k][:13]
             authorGroup[1] = authorsAff[k][14:]
             # authorGroup = authorsAff[k][split_at:]
             print authorGroup[0]
-        elif authorsAff[k].find("Angela") != -1:
-            authorGroup.append(authorsAff[k][:12])
-            authorGroup.append(authorsAff[k][13:])
-        elif authorsAff[k].find("Williams") != -1:
-            authorGroup[0] = authorsAff[k][:13]
-            authorGroup[1] = authorsAff[k][14:]
-        elif authorsAff[k].find("Samson") != -1:
+        elif authorsAff[k].find("Angela Crews") != -1 and Entry_Data.session == "Poster Session 2":
+                authorGroup.append(authorsAff[k][:authorsAff[k].find("Crews")+5])
+                authorGroup.append(authorsAff[k][authorsAff[k].find("Crews")+6:])
+        elif authorsAff[k].find("Andy Williams") != -1:
+            authorGroup[0] = authorsAff[k][:authorsAff[k].find("Williams") + 8]
+            authorGroup[1] = authorsAff[k][authorsAff[k].find("Williams") + 9:]
+        elif authorsAff[k].find("John Samson") != -1:
             authorGroup.append(authorsAff[k][:(authorsAff[k].find("Samson")+6)])
             authorGroup.append(authorsAff[k][(authorsAff[k].find("Samson")+7):])
-        elif authorsAff[k].find("Wessels") != -1:
+        elif authorsAff[k].find("Ron Wessels") != -1:
             authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Wessels")+7)]
-            authorGroup[1] = authorsAff[k][(authorsAff[k].find("Wessels")+8):]
+            authorGroup[1] = authorsAff[k][(authorsAff[k].find("Wessels")+9):]
         elif authorsAff[k].find("Mengu Cho") != -1:
             authorGroup.append(authorsAff[k][:(authorsAff[k].find("Mengu Cho") + 9)])
             authorGroup.append(authorsAff[k][(authorsAff[k].find("Mengu Cho") + 11):])
@@ -237,9 +237,9 @@ def separateAuthors (authorsAff, Entry_Data):                               # se
         elif authorsAff[k].find("Brenda Dingwall") != -1:
             authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Brenda Dingwall")+15)]
             authorGroup[1] = authorsAff[k][(authorsAff[k].find("Brenda Dingwall")+16):]
-        elif authorsAff[k].find("Shih-Chi Chiu") != -1:
-            authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Shih-Chi Chiu") + 13)]
-            authorGroup[1] = authorsAff[k][(authorsAff[k].find("BShih-Chi Chiu") + 14):]
+        elif authorsAff[k].find("Yi Duann") != -1:
+            authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Yi Duann") + 8)]
+            authorGroup[1] = authorsAff[k][(authorsAff[k].find("Yi Duann") + 9):]
         #elif authorsAff[k].find("Black") != -1:
          #   authorGroup[0] = authorsAff[k][:(authorsAff[k].find("Black"))]
           #  authorGroup[1] = authorsAff[k][(authorsAff[k].find("Black")):]
